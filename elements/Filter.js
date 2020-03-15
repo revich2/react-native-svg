@@ -208,7 +208,7 @@ defaults for the filter effects region are x="-10%" y="-10%" width="120%" height
 
 */
 export default class Filter extends Component {
-    static displayName = 'filter';
+    static displayName = 'Filter';
 
     setNativeProps = props => {
         this.root.setNativeProps(props);

@@ -47,6 +47,7 @@ public class SvgPackage implements ReactPackage {
                 new RadialGradientManager(),
                 new PatternManager(),
                 new MaskManager(),
+                new FilterManager(),
                 new SvgViewManager());
     }
 
