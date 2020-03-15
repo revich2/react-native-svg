@@ -70,6 +70,7 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         RNSVGRadialGradient,
         RNSVGPattern,
         RNSVGMask,
+        RNSVGFilter,
     }
 
     class RenderableShadowNode extends LayoutShadowNode {
@@ -850,6 +851,16 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         }
     }
 
+    static class FilterManager extends RenderableViewManager {
+        FilterManager() { super(SVGClass.RNSVGFilter); }
+
+        @ReactProp(name = "x")
+        public void setX(FilterView node, Dynamic x) { node.setX(x); }
+
+        @ReactProp(name = "y")
+        public void setY(FilterView node, Dynamic y) { node.setY(y); }
+    }
+
     static class LinearGradientManager extends RenderableViewManager {
         LinearGradientManager() {
             super(SVGClass.RNSVGLinearGradient);
@@ -956,6 +967,11 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
     @ReactProp(name = "mask")
     public void setMask(VirtualView node, String mask) {
         node.setMask(mask);
+    }
+
+    @ReactProp(name = "filter")
+    public void setFilter(VirtualView node, String filter) {
+        node.setFilter(filter);
     }
 
     @ReactProp(name = "clipPath")
@@ -1152,6 +1168,8 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
                 return new PatternView(reactContext);
             case RNSVGMask:
                 return new MaskView(reactContext);
+            case RNSVGFilter:
+                return new FilterView(reactContext);
             default:
                 throw new IllegalStateException("Unexpected type " + svgClass.toString());
         }
