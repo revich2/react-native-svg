@@ -62,6 +62,7 @@ abstract public class VirtualView extends ReactViewGroup {
     int mClipRule;
     private @Nullable String mClipPath;
     @Nullable String mMask;
+    @Nullable String mFilter;
 
     private static final int CLIP_RULE_EVENODD = 0;
     static final int CLIP_RULE_NONZERO = 1;
@@ -226,6 +227,12 @@ abstract public class VirtualView extends ReactViewGroup {
     @ReactProp(name = "mask")
     public void setMask(String mask) {
         mMask = mask;
+        invalidate();
+    }
+
+    @ReactProp(name = "filter")
+    public void setFilter(String filter) {
+        mFilter = filter;
         invalidate();
     }
 
