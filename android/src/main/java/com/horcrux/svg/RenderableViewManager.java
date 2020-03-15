@@ -851,7 +851,7 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         }
     }
 
-    static class FilterManager extends RenderableViewManager {
+    static class FilterManager extends GroupViewManager {
         FilterManager() { super(SVGClass.RNSVGFilter); }
 
         @ReactProp(name = "x")
