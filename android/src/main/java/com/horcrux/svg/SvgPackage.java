@@ -48,6 +48,7 @@ public class SvgPackage implements ReactPackage {
                 new PatternManager(),
                 new MaskManager(),
                 new FilterManager(),
+                new FEGaussianBlurManager(),
                 new SvgViewManager());
     }
 
