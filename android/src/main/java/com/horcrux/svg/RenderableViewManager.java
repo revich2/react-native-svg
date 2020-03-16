@@ -71,6 +71,7 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         RNSVGPattern,
         RNSVGMask,
         RNSVGFilter,
+        RNSVGFEGaussianBlur,
     }
 
     class RenderableShadowNode extends LayoutShadowNode {
@@ -861,6 +862,30 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         public void setY(FilterView node, Dynamic y) { node.setY(y); }
     }
 
+    static class FEGaussianBlurManager extends RenderableViewManager {
+        FEGaussianBlurManager() { super(SVGClass.RNSVGFEGaussianBlur); }
+
+        @ReactProp(name = "stdDeviationX")
+        public void setStdDeviationX(FEGaussianBlur node, Dynamic stdDeviationX) {
+            node.setStdDeviationX(stdDeviationX);
+        }
+
+        @ReactProp(name = "stdDeviationY")
+        public void setStdDeviationY(FEGaussianBlur node, Dynamic stdDeviationY) {
+            node.setStdDeviationY(stdDeviationY);
+        }
+
+        @ReactProp(name = "edgeMode")
+        public void setEdgeMode(FEGaussianBlur node, int edgeMode) {
+            node.setEdgeMode(edgeMode);
+        }
+
+        @ReactProp(name = "in1")
+        public void setIn1(FEGaussianBlur node, String in1) {
+            node.setIn1(in1);
+        }
+    }
+
     static class LinearGradientManager extends RenderableViewManager {
         LinearGradientManager() {
             super(SVGClass.RNSVGLinearGradient);
@@ -1170,6 +1195,8 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
                 return new MaskView(reactContext);
             case RNSVGFilter:
                 return new FilterView(reactContext);
+            case RNSVGFEGaussianBlur:
+                return new FEGaussianBlur(reactContext);
             default:
                 throw new IllegalStateException("Unexpected type " + svgClass.toString());
         }
