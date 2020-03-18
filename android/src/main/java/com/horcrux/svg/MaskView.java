@@ -11,6 +11,7 @@ package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
+import android.view.View;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Dynamic;
@@ -120,6 +121,19 @@ class MaskView extends GroupView {
         if (mName != null) {
             SvgView svg = getSvgView();
             svg.defineMask(this, mName);
+
+            for (int i = 0; i < getChildCount(); i++) {
+                View node = getChildAt(i);
+                if (node instanceof VirtualView) {
+                    VirtualView vNode = (VirtualView) node;
+
+                    if (vNode.mFilter != null) {
+                        SvgView root = getSvgView();
+
+                        root.setFilterInGroup(this.mName, vNode.mFilter, vNode);
+                    }
+                }
+            }
         }
     }
 }

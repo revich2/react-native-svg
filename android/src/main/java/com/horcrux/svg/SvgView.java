@@ -30,6 +30,7 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.views.view.ReactViewGroup;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,6 +137,9 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
     private final Map<String, VirtualView> mDefinedMasks = new HashMap<>();
     private final Map<String, VirtualView> mDefinedFilters = new HashMap<>();
     private final Map<String, Brush> mDefinedBrushes = new HashMap<>();
+
+    private final Map<String, Map<String, ArrayList<VirtualView>>> mFiltersInGroup = new HashMap<>();
+
     private Canvas mCanvas;
     private final float mScale;
 
@@ -416,4 +420,40 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
     void defineFilter(VirtualView filter, String filterRef) { mDefinedFilters.put(filterRef, filter); }
 
     VirtualView getDefinedFilter(String filterRef) { return mDefinedFilters.get(filterRef);}
+
+    void setFilterInGroup(String groupRef, String filterRef, VirtualView target) {
+        Map<String, ArrayList<VirtualView>> filtersForTarget = mFiltersInGroup.get(groupRef);
+
+        if (filtersForTarget == null) {
+            Map<String, ArrayList<VirtualView>> newFilterMap = new HashMap<>();
+
+            ArrayList<VirtualView> targetsArray = new ArrayList<>();
+            targetsArray.add(target);
+
+            newFilterMap.put(filterRef, targetsArray);
+
+            mFiltersInGroup.put(
+                    groupRef,
+                    newFilterMap
+            );
+
+            return;
+        }
+
+        ArrayList<VirtualView> targets = filtersForTarget.get(filterRef);
+
+        if (targets == null) {
+            targets = new ArrayList<>();
+
+            targets.add(target);
+
+            return;
+        }
+
+        targets.add(target);
+    }
+
+    ArrayList<VirtualView> getFilteredViewsInGroup(String groupRef) {
+        return mFiltersInGroup.get(groupRef).get("filter-blur");
+    }
 }

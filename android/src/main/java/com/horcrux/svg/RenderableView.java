@@ -293,13 +293,15 @@ abstract public class RenderableView extends VirtualView {
         return bitmap;
     }
 
-    private void blurContourByPath(Bitmap bitmap, Path path, int blurRadius, float scale, int safePadding) {
+    private void blurContourByPath(Bitmap bitmap, Path path, int blurRadius, float scale) {
+        int _magicSafePadding = (int) (blurRadius * ((1 - scale) * 10));
+
         RectF rectF = new RectF();
         path.computeBounds(rectF, true);
 
         Bitmap cropBitmap = Bitmap.createBitmap(
-                (int) (rectF.width() + safePadding),
-                (int) (rectF.height() + safePadding),
+                (int) (rectF.width() + _magicSafePadding),
+                (int) (rectF.height() + _magicSafePadding),
                 Bitmap.Config.ARGB_8888
         );
 
@@ -309,8 +311,8 @@ abstract public class RenderableView extends VirtualView {
         Canvas cropCanvas = new Canvas(cropBitmap);
         cropCanvas.drawBitmap(
                 bitmap,
-                -rectF.left + safePadding / 2,
-                -rectF.top + safePadding / 2,
+                -rectF.left + _magicSafePadding / 2,
+                -rectF.top + _magicSafePadding / 2,
                 null
         );
 
@@ -319,26 +321,28 @@ abstract public class RenderableView extends VirtualView {
 
         Canvas originalCanvas = new Canvas(bitmap);
         originalCanvas.drawRect(
-                rectF.left - safePadding / 2,
-                rectF.top - safePadding / 2,
-                rectF.right + safePadding / 2,
-                rectF.bottom + safePadding / 2,
+                rectF.left - _magicSafePadding / 2,
+                rectF.top - _magicSafePadding / 2,
+                rectF.right + _magicSafePadding / 2,
+                rectF.bottom + _magicSafePadding / 2,
                 paint
         );
         originalCanvas.drawBitmap(
                 cropBitmap,
-                rectF.left - safePadding / 2,
-                rectF.top - safePadding / 2,
+                rectF.left - _magicSafePadding / 2,
+                rectF.top - _magicSafePadding / 2,
                 null
         );
     }
 
     void render(Canvas canvas, Paint paint, float opacity) {
+        SvgView root = getSvgView();
         MaskView mask = null;
+
         if (mMask != null) {
-            SvgView root = getSvgView();
             mask = (MaskView) root.getDefinedMask(mMask);
         }
+
         if (mask != null) {
             Rect clipBounds = canvas.getClipBounds();
             int height = clipBounds.height();
@@ -361,6 +365,14 @@ abstract public class RenderableView extends VirtualView {
 
             Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mask.draw(maskCanvas, maskPaint, 1);
+
+            ArrayList<VirtualView> filterTargets = root.getFilteredViewsInGroup(mask.mName);
+
+            for (VirtualView filterTarget: filterTargets) {
+                Path filterTargetPath = filterTarget.getPath(canvas, paint);
+
+                this.blurContourByPath(maskBitmap, filterTargetPath, 25, 0.2f);
+            }
 
             // Apply luminanceToAlpha filter primitive https://www.w3.org/TR/SVG11/filters.html#feColorMatrixElement
             int nPixels = width * height;
@@ -391,7 +403,7 @@ abstract public class RenderableView extends VirtualView {
             resultCanvas.drawBitmap(original, 0, 0, null);
             resultCanvas.drawBitmap(maskBitmap, 0, 0, maskPaint);
 
-            this.blurContourByPath(result, getPath(canvas, paint), 25, 0.1f, 500);
+            this.blurContourByPath(result, getPath(canvas, paint), 25, 0.2f);
             // Render composited result into current render context
             canvas.drawBitmap(result, 0, 0, paint);
         } else {
