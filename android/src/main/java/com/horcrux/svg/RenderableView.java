@@ -20,6 +20,11 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.os.Build;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
@@ -260,6 +265,74 @@ abstract public class RenderableView extends VirtualView {
         return v <= 0 ? 0 : (v >= 1 ? 1 : v);
     }
 
+    public Bitmap blur(Bitmap bitmap, int radius, float scale) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            RenderScript rs = RenderScript.create(getContext());
+
+            int width = Math.round(bitmap.getWidth() * scale);
+            int height = Math.round(bitmap.getHeight() * scale);
+
+            Bitmap inputBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+            Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+
+            Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
+            Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
+
+            ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+            blurScript.setRadius(radius);
+            blurScript.setInput(tmpIn);
+            blurScript.forEach(tmpOut);
+            tmpOut.copyTo(outputBitmap);
+
+            rs.destroy();
+
+            return Bitmap.createScaledBitmap(outputBitmap, Math.round(width / scale), Math.round(height / scale), false);
+        }
+
+        return bitmap;
+    }
+
+    private void blurContourByPath(Bitmap bitmap, Path path, int blurRadius, float scale, int safePadding) {
+        RectF rectF = new RectF();
+        path.computeBounds(rectF, true);
+
+        Bitmap cropBitmap = Bitmap.createBitmap(
+                (int) (rectF.width() + safePadding),
+                (int) (rectF.height() + safePadding),
+                Bitmap.Config.ARGB_8888
+        );
+
+        Paint paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
+        Canvas cropCanvas = new Canvas(cropBitmap);
+        cropCanvas.drawBitmap(
+                bitmap,
+                -rectF.left + safePadding / 2,
+                -rectF.top + safePadding / 2,
+                null
+        );
+
+        Bitmap blurredBitmap = this.blur(cropBitmap, blurRadius, scale);
+        cropCanvas.drawBitmap(blurredBitmap, 0, 0, null);
+
+        Canvas originalCanvas = new Canvas(bitmap);
+        originalCanvas.drawRect(
+                rectF.left - safePadding / 2,
+                rectF.top - safePadding / 2,
+                rectF.right + safePadding / 2,
+                rectF.bottom + safePadding / 2,
+                paint
+        );
+        originalCanvas.drawBitmap(
+                cropBitmap,
+                rectF.left - safePadding / 2,
+                rectF.top - safePadding / 2,
+                null
+        );
+    }
+
     void render(Canvas canvas, Paint paint, float opacity) {
         MaskView mask = null;
         if (mMask != null) {
@@ -318,6 +391,7 @@ abstract public class RenderableView extends VirtualView {
             resultCanvas.drawBitmap(original, 0, 0, null);
             resultCanvas.drawBitmap(maskBitmap, 0, 0, maskPaint);
 
+            this.blurContourByPath(result, getPath(canvas, paint), 25, 0.1f, 500);
             // Render composited result into current render context
             canvas.drawBitmap(result, 0, 0, paint);
         } else {
