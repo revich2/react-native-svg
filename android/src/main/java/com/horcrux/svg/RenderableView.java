@@ -294,7 +294,8 @@ abstract public class RenderableView extends VirtualView {
     }
 
     private void blurContourByPath(Bitmap bitmap, Path path, int blurRadius, float scale) {
-        int _magicSafePadding = (int) (blurRadius * ((1 - scale) * 10));
+        // int _magicSafePadding = (int) (blurRadius * ((1 - scale) * 10));
+        int _magicSafePadding = (int) 0;
 
         RectF rectF = new RectF();
         path.computeBounds(rectF, true);
@@ -403,7 +404,6 @@ abstract public class RenderableView extends VirtualView {
             resultCanvas.drawBitmap(original, 0, 0, null);
             resultCanvas.drawBitmap(maskBitmap, 0, 0, maskPaint);
 
-            this.blurContourByPath(result, getPath(canvas, paint), 25, 0.2f);
             // Render composited result into current render context
             canvas.drawBitmap(result, 0, 0, paint);
         } else {

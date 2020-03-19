@@ -454,6 +454,12 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
     }
 
     ArrayList<VirtualView> getFilteredViewsInGroup(String groupRef) {
+        Map<String, ArrayList<VirtualView>> filtersForTarget = mFiltersInGroup.get(groupRef);
+
+        if (filtersForTarget == null) {
+            return new ArrayList<>();
+        }
+
         return mFiltersInGroup.get(groupRef).get("filter-blur");
     }
 }
