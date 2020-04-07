@@ -852,6 +852,22 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         }
     }
 
+    static class FilterPrimitiveManager extends RenderableViewManager {
+        FilterPrimitiveManager(SVGClass svgClass) { super(svgClass); }
+
+        @ReactProp(name = "x")
+        public void setX(FilterPrimitiveView node, Dynamic x) { node.setX(x); }
+
+        @ReactProp(name = "y")
+        public void setY(FilterPrimitiveView node, Dynamic y) { node.setY(y); }
+
+        @ReactProp(name = "width")
+        public void setWidth(FilterPrimitiveView node, Dynamic width) { node.setWidth(width); }
+
+        @ReactProp(name = "height")
+        public void setHeight(FilterPrimitiveView node, Dynamic height) { node.setHeight(height); }
+    }
+
     static class FilterManager extends GroupViewManager {
         FilterManager() { super(SVGClass.RNSVGFilter); }
 
@@ -860,28 +876,44 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
 
         @ReactProp(name = "y")
         public void setY(FilterView node, Dynamic y) { node.setY(y); }
+
+        @ReactProp(name = "width")
+        public void setWidth(FilterView node, Dynamic width) { node.setWidth(width); }
+
+        @ReactProp(name = "height")
+        public void setHeight(FilterView node, Dynamic height) { node.setHeight(height); }
+
+        @ReactProp(name = "filterUnits")
+        public void setFilterUnits(FilterView node, int filterUnits) {
+          node.setFilterUnits(filterUnits);
+        }
+
+        @ReactProp(name = "primitiveUnits")
+        public void setPrimitiveUnits(FilterView node, int primitiveUnits) {
+          node.setPrimitiveUnits(primitiveUnits);
+        }
     }
 
-    static class FEGaussianBlurManager extends RenderableViewManager {
+    static class FEGaussianBlurManager extends FilterPrimitiveManager {
         FEGaussianBlurManager() { super(SVGClass.RNSVGFEGaussianBlur); }
 
         @ReactProp(name = "stdDeviationX")
-        public void setStdDeviationX(FEGaussianBlur node, Dynamic stdDeviationX) {
+        public void setStdDeviationX(FEGaussianBlurView node, Dynamic stdDeviationX) {
             node.setStdDeviationX(stdDeviationX);
         }
 
         @ReactProp(name = "stdDeviationY")
-        public void setStdDeviationY(FEGaussianBlur node, Dynamic stdDeviationY) {
+        public void setStdDeviationY(FEGaussianBlurView node, Dynamic stdDeviationY) {
             node.setStdDeviationY(stdDeviationY);
         }
 
         @ReactProp(name = "edgeMode")
-        public void setEdgeMode(FEGaussianBlur node, int edgeMode) {
+        public void setEdgeMode(FEGaussianBlurView node, int edgeMode) {
             node.setEdgeMode(edgeMode);
         }
 
         @ReactProp(name = "in1")
-        public void setIn1(FEGaussianBlur node, String in1) {
+        public void setIn1(FEGaussianBlurView node, String in1) {
             node.setIn1(in1);
         }
     }
@@ -1196,7 +1228,7 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
             case RNSVGFilter:
                 return new FilterView(reactContext);
             case RNSVGFEGaussianBlur:
-                return new FEGaussianBlur(reactContext);
+                return new FEGaussianBlurView(reactContext);
             default:
                 throw new IllegalStateException("Unexpected type " + svgClass.toString());
         }
