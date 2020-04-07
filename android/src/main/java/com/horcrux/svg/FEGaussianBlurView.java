@@ -7,7 +7,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
 @SuppressLint("ViewConstructor")
-class FEGaussianBlur extends GroupView {
+class FEGaussianBlurView extends FilterPrimitiveView {
     enum RNSVGEdgeModeValues {
         SVG_EDGEMODE_UNKNOWN,
         SVG_EDGEMODE_DUPLICATE,
@@ -21,7 +21,7 @@ class FEGaussianBlur extends GroupView {
 
     String mIn1;
 
-    public FEGaussianBlur(ReactContext reactContext) {
+    public FEGaussianBlurView(ReactContext reactContext) {
         super(reactContext);
     }
 
