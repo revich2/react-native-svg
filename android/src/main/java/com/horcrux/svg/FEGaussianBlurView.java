@@ -1,10 +1,13 @@
 package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FEGaussianBlurView extends FilterPrimitiveView {
@@ -68,4 +71,18 @@ class FEGaussianBlurView extends FilterPrimitiveView {
 
     @Override
     void saveDefinition() { }
+
+    @Override
+    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult) {
+        Bitmap inResult = !this.mIn1.isEmpty() ? results.get(this.mIn1) : null;
+        Bitmap inputImage = inResult != null ? inResult : previousFilterResult;
+
+        if (inputImage == null) {
+          return null;
+        }
+
+        // TODO: make filter
+
+        return previousFilterResult;
+    }
 }

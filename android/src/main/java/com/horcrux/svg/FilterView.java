@@ -1,10 +1,15 @@
 package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.view.View;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FilterView extends GroupView {
@@ -16,6 +21,8 @@ class FilterView extends GroupView {
 
     Brush.BrushUnits mFilterUnits;
     Brush.BrushUnits mPrimitiveUnits;
+
+    Map<String, Bitmap> resultByName = new HashMap<>();
 
     public FilterView(ReactContext reactContext) {
         super(reactContext);
@@ -69,6 +76,36 @@ class FilterView extends GroupView {
           break;
       }
       invalidate();
+    }
+
+    public Bitmap applyFilter(Bitmap img, Bitmap background) {
+      resultByName.clear();
+
+      Bitmap sourceAlpha = this.applySourceAlphaFilter(img);
+      Bitmap backgroundAlpha = this.applySourceAlphaFilter(background);
+
+      resultByName.put("SourceGraphic", img);
+      resultByName.put("SourceAlpha", sourceAlpha);
+      resultByName.put("BackgroundImage", background);
+      resultByName.put("BackgroundAlpha", backgroundAlpha);
+
+      Bitmap result = img;
+
+      for (int i = 0; i < getChildCount(); i++) {
+        View node = getChildAt(i);
+        if (node instanceof FilterPrimitiveView) {
+          FilterPrimitiveView filterPrimitive = (FilterPrimitiveView) node;
+
+          result = filterPrimitive.applyFilter(this.resultByName, result);
+        }
+      }
+
+      return result;
+    }
+
+    private Bitmap applySourceAlphaFilter(Bitmap img) {
+      // TODO
+      return img;
     }
 
     @Override

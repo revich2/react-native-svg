@@ -1,12 +1,21 @@
 package com.horcrux.svg;
 
+import android.graphics.Bitmap;
+
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-public class FilterPrimitiveView extends DefinitionView {
+import java.util.Map;
+
+interface FilterPrimitive {
+  Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult);
+}
+
+public class FilterPrimitiveView extends DefinitionView implements FilterPrimitive {
     SVGLength mX;
     SVGLength mY;
+
     SVGLength mWidth;
     SVGLength mHeight;
 
@@ -36,5 +45,7 @@ public class FilterPrimitiveView extends DefinitionView {
         invalidate();
     }
 
-    public void applyFilter() {}
+    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult) {
+        return previousFilterResult;
+    }
 }

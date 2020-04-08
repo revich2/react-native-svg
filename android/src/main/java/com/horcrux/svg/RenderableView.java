@@ -20,6 +20,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.util.Log;
+import android.view.ViewParent;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.JSApplicationIllegalArgumentException;
@@ -321,7 +323,30 @@ abstract public class RenderableView extends VirtualView {
             // Render composited result into current render context
             canvas.drawBitmap(result, 0, 0, paint);
         } else {
-            draw(canvas, paint, opacity);
+            FilterView filter = null;
+            ViewParent parent = this.getParent();
+
+            if (this.mFilter != null && !(parent instanceof MaskView)) {
+              SvgView root = getSvgView();
+              filter = (FilterView) root.getDefinedFilter(this.mFilter);
+
+              Bitmap background = root.getTempBitmap();
+
+              Rect clipBounds = canvas.getClipBounds();
+              int height = clipBounds.height();
+              int width = clipBounds.width();
+
+              Bitmap original = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+              Canvas originalCanvas = new Canvas(original);
+
+              draw(originalCanvas, paint, opacity);
+
+              Bitmap filteredBitmap = filter.applyFilter(original, background);
+
+              canvas.drawBitmap(filteredBitmap, 0, 0, null);
+            } else {
+              draw(canvas, paint, opacity);
+            }
         }
     }
 
