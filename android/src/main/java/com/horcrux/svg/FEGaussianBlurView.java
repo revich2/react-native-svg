@@ -2,10 +2,19 @@ package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.Path;
+import android.util.Log;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.Map;
 
@@ -43,6 +52,7 @@ class FEGaussianBlurView extends FilterPrimitiveView {
     @ReactProp(name="edgeMode")
     public void setEdgeMode(int edgeMode) {
         switch (edgeMode) {
+            default:
             case 0:
                 mEdgeMode = RNSVGEdgeModeValues.SVG_EDGEMODE_UNKNOWN;
                 break;
@@ -54,9 +64,6 @@ class FEGaussianBlurView extends FilterPrimitiveView {
                 break;
             case 3:
                 mEdgeMode = RNSVGEdgeModeValues.SVG_EDGEMODE_NONE;
-                break;
-            default:
-                mEdgeMode = RNSVGEdgeModeValues.SVG_EDGEMODE_UNKNOWN;
                 break;
         }
 
@@ -70,10 +77,7 @@ class FEGaussianBlurView extends FilterPrimitiveView {
     }
 
     @Override
-    void saveDefinition() { }
-
-    @Override
-    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult) {
+    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path) {
         Bitmap inResult = !this.mIn1.isEmpty() ? results.get(this.mIn1) : null;
         Bitmap inputImage = inResult != null ? inResult : previousFilterResult;
 
@@ -81,8 +85,24 @@ class FEGaussianBlurView extends FilterPrimitiveView {
           return null;
         }
 
-        // TODO: make filter
+        Bitmap tmpBitmap = inputImage.copy(inputImage.getConfig(), true);
 
-        return previousFilterResult;
+        // TODO: How it works?
+        if (!OpenCVLoader.initDebug()) {
+          Log.d("OpenCV", "OpenCV loaded successfully!");
+        }
+
+        Mat rgba = new Mat(tmpBitmap.getWidth(), tmpBitmap.getHeight(), CvType.CV_64F);
+        Utils.bitmapToMat(tmpBitmap, rgba);
+
+        int stdDeviationY = (int) Math.floor(this.mStdDeviationY.value);
+        int stdDeviationX = (int) Math.floor(this.mStdDeviationX.value);
+
+        // TODO: What is a kernel size? It depends from image size?
+        Imgproc.GaussianBlur(rgba, rgba, new Size(471, 471), stdDeviationX, stdDeviationY);
+
+        Utils.matToBitmap(rgba, tmpBitmap);
+
+        return tmpBitmap;
     }
 }

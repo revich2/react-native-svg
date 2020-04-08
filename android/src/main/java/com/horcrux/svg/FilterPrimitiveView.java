@@ -1,6 +1,7 @@
 package com.horcrux.svg;
 
 import android.graphics.Bitmap;
+import android.graphics.Path;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
@@ -9,7 +10,7 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 import java.util.Map;
 
 interface FilterPrimitive {
-  Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult);
+  Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path);
 }
 
 public class FilterPrimitiveView extends DefinitionView implements FilterPrimitive {
@@ -45,7 +46,7 @@ public class FilterPrimitiveView extends DefinitionView implements FilterPrimiti
         invalidate();
     }
 
-    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult) {
+    public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path) {
         return previousFilterResult;
     }
 }
