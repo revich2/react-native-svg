@@ -2,6 +2,7 @@ package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.Path;
 import android.view.View;
 
 import com.facebook.react.bridge.Dynamic;
@@ -78,7 +79,8 @@ class FilterView extends GroupView {
       invalidate();
     }
 
-    public Bitmap applyFilter(Bitmap img, Bitmap background) {
+    // TODO: img should be equal root SVG size or filter should be applied only for bounds of current primitive?
+    public Bitmap applyFilter(Bitmap img, Bitmap background, Path path) {
       resultByName.clear();
 
       Bitmap sourceAlpha = this.applySourceAlphaFilter(img);
@@ -96,7 +98,7 @@ class FilterView extends GroupView {
         if (node instanceof FilterPrimitiveView) {
           FilterPrimitiveView filterPrimitive = (FilterPrimitiveView) node;
 
-          result = filterPrimitive.applyFilter(this.resultByName, result);
+          result = filterPrimitive.applyFilter(this.resultByName, result, path);
         }
       }
 

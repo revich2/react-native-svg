@@ -324,9 +324,8 @@ abstract public class RenderableView extends VirtualView {
             canvas.drawBitmap(result, 0, 0, paint);
         } else {
             FilterView filter = null;
-            ViewParent parent = this.getParent();
 
-            if (this.mFilter != null && !(parent instanceof MaskView)) {
+            if (this.mFilter != null ) {
               SvgView root = getSvgView();
               filter = (FilterView) root.getDefinedFilter(this.mFilter);
 
@@ -341,9 +340,10 @@ abstract public class RenderableView extends VirtualView {
 
               draw(originalCanvas, paint, opacity);
 
-              Bitmap filteredBitmap = filter.applyFilter(original, background);
+              Bitmap filteredBitmap = filter.applyFilter(original, background, this.getPath(originalCanvas, paint));
+              originalCanvas.drawBitmap(filteredBitmap, 0, 0, null);
 
-              canvas.drawBitmap(filteredBitmap, 0, 0, null);
+              canvas.drawBitmap(original, 0, 0, null);
             } else {
               draw(canvas, paint, opacity);
             }
