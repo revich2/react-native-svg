@@ -64,6 +64,7 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
     }
 
     private @Nullable Bitmap mBitmap;
+    private @Nullable Bitmap mTempBitmap;
 
     public SvgView(ReactContext reactContext) {
         super(reactContext);
@@ -92,6 +93,7 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
             mBitmap.recycle();
         }
         mBitmap = null;
+        mTempBitmap = null;
     }
 
     @Override
@@ -258,13 +260,28 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
         return mCanvas.getClipBounds();
     }
 
+    public Bitmap getTempBitmap() {
+      return this.mTempBitmap;
+    }
+
     synchronized void drawChildren(final Canvas canvas) {
+        float width = canvas.getWidth();
+        float height = canvas.getHeight();
+
+        Bitmap tempBitmap = Bitmap.createBitmap(
+          (int) width,
+          (int) height,
+          Bitmap.Config.ARGB_8888);
+        this.mTempBitmap = tempBitmap;
+
+        Canvas tempCanvas = new Canvas(this.mTempBitmap);
+
+
         mRendered = true;
         mCanvas = canvas;
         if (mAlign != null) {
             RectF vbRect = getViewBox();
-            float width = canvas.getWidth();
-            float height = canvas.getHeight();
+
             boolean nested = getParent() instanceof VirtualView;
             if (nested) {
                 width = (float) PropHelper.fromRelative(mbbWidth, width, 0f, mScale, 12);
@@ -272,11 +289,11 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
             }
             RectF eRect = new RectF(0,0, width, height);
             if (nested) {
-                canvas.clipRect(eRect);
+                tempCanvas.clipRect(eRect);
             }
             Matrix mViewBoxMatrix = ViewBox.getTransform(vbRect, eRect, mAlign, mMeetOrSlice);
             mInvertible = mViewBoxMatrix.invert(mInvViewBoxMatrix);
-            canvas.concat(mViewBoxMatrix);
+            tempCanvas.concat(mViewBoxMatrix);
         }
 
         final Paint paint = new Paint();
@@ -297,15 +314,17 @@ public class SvgView extends ReactViewGroup implements ReactCompoundView, ReactC
             View lNode = getChildAt(i);
             if (lNode instanceof VirtualView) {
                 VirtualView node = (VirtualView)lNode;
-                int count = node.saveAndSetupCanvas(canvas);
-                node.render(canvas, paint, 1f);
-                node.restoreCanvas(canvas, count);
+                int count = node.saveAndSetupCanvas(tempCanvas);
+                node.render(tempCanvas, paint, 1f);
+                node.restoreCanvas(tempCanvas, count);
 
                 if (node.isResponsible() && !mResponsible) {
                     mResponsible = true;
                 }
             }
         }
+
+        canvas.drawBitmap(tempBitmap, 0, 0, null);
     }
 
     private RectF getViewBox() {
