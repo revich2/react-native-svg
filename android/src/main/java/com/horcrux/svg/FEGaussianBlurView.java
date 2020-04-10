@@ -119,6 +119,6 @@ class FEGaussianBlurView extends FilterPrimitiveView {
           return tmpBitmap;
         }
 
-        return this.blur(tmpBitmap, (int) Math.min(stdDeviationX, 25), 0.1f);
+        return this.blur(tmpBitmap, (int) Math.min(stdDeviationX, 25), 1.f);
     }
 }
