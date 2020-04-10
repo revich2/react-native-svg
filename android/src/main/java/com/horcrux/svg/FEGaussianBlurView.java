@@ -20,6 +20,26 @@ import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FEGaussianBlurView extends FilterPrimitiveView {
+    static final int gMaxKernelSize = 501;
+
+    private static float gaussianKernelFactor() {
+      return 3 / 4.f * (float) Math.sqrt(2 * Math.PI);
+    }
+
+    private int clampedToKernelSize(double value) {
+      int size = Math.max(2, (int) Math.floor(value * gaussianKernelFactor() + 0.5f));
+
+      return Math.min(size, gMaxKernelSize);
+    }
+
+    private int castToOdd(int value) {
+      return value % 2 == 0 ? value + 1 : value;
+    }
+
+    private Size calculateKernelSize(double stdX, double stdY) {
+      return new Size(castToOdd(clampedToKernelSize(stdX)), castToOdd(clampedToKernelSize(stdY)));
+    }
+
     enum RNSVGEdgeModeValues {
         SVG_EDGEMODE_UNKNOWN,
         SVG_EDGEMODE_DUPLICATE,
@@ -95,11 +115,16 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         Mat rgba = new Mat(tmpBitmap.getWidth(), tmpBitmap.getHeight(), CvType.CV_64F);
         Utils.bitmapToMat(tmpBitmap, rgba);
 
-        int stdDeviationY = (int) Math.floor(this.mStdDeviationY.value);
-        int stdDeviationX = (int) Math.floor(this.mStdDeviationX.value);
+        double stdDeviationY = this.mStdDeviationY.value;
+        double stdDeviationX = this.mStdDeviationX.value;
 
-        // TODO: What is a kernel size? It depends from image size?
-        Imgproc.GaussianBlur(rgba, rgba, new Size(471, 471), stdDeviationX, stdDeviationY);
+        Imgproc.GaussianBlur(
+          rgba,
+          rgba,
+          calculateKernelSize(stdDeviationX * 3.2, stdDeviationY * 3.2), // 3.2 - This is experimental value
+          stdDeviationX * 20, // 10 - This is experimental value
+          stdDeviationY * 20  // 10 - This is experimental value
+        );
 
         Utils.matToBitmap(rgba, tmpBitmap);
 

@@ -341,9 +341,8 @@ abstract public class RenderableView extends VirtualView {
               draw(originalCanvas, paint, opacity);
 
               Bitmap filteredBitmap = filter.applyFilter(original, background, this.getPath(originalCanvas, paint));
-              originalCanvas.drawBitmap(filteredBitmap, 0, 0, null);
 
-              canvas.drawBitmap(original, 0, 0, null);
+              canvas.drawBitmap(filteredBitmap, 0, 0, null);
             } else {
               draw(canvas, paint, opacity);
             }
