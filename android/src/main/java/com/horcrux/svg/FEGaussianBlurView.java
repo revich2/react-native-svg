@@ -3,43 +3,20 @@ package com.horcrux.svg;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Path;
-import android.util.Log;
+import android.os.Build;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
-
 import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FEGaussianBlurView extends FilterPrimitiveView {
-    static final int gMaxKernelSize = 501;
-
-    private static float gaussianKernelFactor() {
-      return 3 / 4.f * (float) Math.sqrt(2 * Math.PI);
-    }
-
-    private int clampedToKernelSize(double value) {
-      int size = Math.max(2, (int) Math.floor(value * gaussianKernelFactor() + 0.5f));
-
-      return Math.min(size, gMaxKernelSize);
-    }
-
-    private int castToOdd(int value) {
-      return value % 2 == 0 ? value + 1 : value;
-    }
-
-    private Size calculateKernelSize(double stdX, double stdY) {
-      return new Size(castToOdd(clampedToKernelSize(stdX)), castToOdd(clampedToKernelSize(stdY)));
-    }
-
     enum RNSVGEdgeModeValues {
         SVG_EDGEMODE_UNKNOWN,
         SVG_EDGEMODE_DUPLICATE,
@@ -96,6 +73,34 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         invalidate();
     }
 
+    public Bitmap blur(Bitmap bitmap, int radius, float scale) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        RenderScript rs = RenderScript.create(getContext());
+
+        int width = Math.round(bitmap.getWidth() * scale);
+        int height = Math.round(bitmap.getHeight() * scale);
+
+        Bitmap inputBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+
+        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
+        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
+
+        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+        blurScript.setRadius(radius);
+        blurScript.setInput(tmpIn);
+        blurScript.forEach(tmpOut);
+        tmpOut.copyTo(outputBitmap);
+
+        rs.destroy();
+
+        return Bitmap.createScaledBitmap(outputBitmap, Math.round(width / scale), Math.round(height / scale), false);
+      }
+
+      return bitmap;
+    }
+
     @Override
     public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path) {
         Bitmap inResult = !this.mIn1.isEmpty() ? results.get(this.mIn1) : null;
@@ -107,27 +112,13 @@ class FEGaussianBlurView extends FilterPrimitiveView {
 
         Bitmap tmpBitmap = inputImage.copy(inputImage.getConfig(), true);
 
-        // TODO: How it works?
-        if (!OpenCVLoader.initDebug()) {
-          Log.d("OpenCV", "OpenCV loaded successfully!");
-        }
-
-        Mat rgba = new Mat(tmpBitmap.getWidth(), tmpBitmap.getHeight(), CvType.CV_64F);
-        Utils.bitmapToMat(tmpBitmap, rgba);
-
         double stdDeviationY = this.mStdDeviationY.value;
         double stdDeviationX = this.mStdDeviationX.value;
 
-        Imgproc.GaussianBlur(
-          rgba,
-          rgba,
-          calculateKernelSize(stdDeviationX * 3, stdDeviationY * 3), // 3 - This is experimental value
-          stdDeviationX,
-          stdDeviationY
-        );
+        if (stdDeviationX != stdDeviationY) {
+          return tmpBitmap;
+        }
 
-        Utils.matToBitmap(rgba, tmpBitmap);
-
-        return tmpBitmap;
+        return this.blur(tmpBitmap, (int) Math.min(stdDeviationX, 25), 0.1f);
     }
 }

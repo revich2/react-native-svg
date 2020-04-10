@@ -44,5 +44,4 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.quickbirdstudios:opencv:4.1.0'
 }
