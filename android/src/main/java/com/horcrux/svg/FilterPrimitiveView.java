@@ -20,6 +20,8 @@ public class FilterPrimitiveView extends DefinitionView implements FilterPrimiti
     SVGLength mWidth;
     SVGLength mHeight;
 
+    String mResult;
+
     FilterPrimitiveView(ReactContext reactContext) { super(reactContext); }
 
     @ReactProp(name = "x")
@@ -44,6 +46,13 @@ public class FilterPrimitiveView extends DefinitionView implements FilterPrimiti
     public void setHeight(Dynamic height) {
         mHeight = SVGLength.from(height);
         invalidate();
+    }
+
+    @ReactProp(name="result")
+    public void setResult(String result) {
+        invalidate();
+
+        mResult = result;
     }
 
     public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path) {

@@ -329,6 +329,12 @@ abstract public class RenderableView extends VirtualView {
               SvgView root = getSvgView();
               filter = (FilterView) root.getDefinedFilter(this.mFilter);
 
+              if (filter == null) {
+                draw(canvas, paint, opacity);
+
+                return;
+              }
+
               Bitmap background = root.getTempBitmap();
 
               Rect clipBounds = canvas.getClipBounds();

@@ -121,9 +121,9 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         Imgproc.GaussianBlur(
           rgba,
           rgba,
-          calculateKernelSize(stdDeviationX * 3.2, stdDeviationY * 3.2), // 3.2 - This is experimental value
-          stdDeviationX * 20, // 10 - This is experimental value
-          stdDeviationY * 20  // 10 - This is experimental value
+          calculateKernelSize(stdDeviationX * 3, stdDeviationY * 3), // 3 - This is experimental value
+          stdDeviationX,
+          stdDeviationY
         );
 
         Utils.matToBitmap(rgba, tmpBitmap);

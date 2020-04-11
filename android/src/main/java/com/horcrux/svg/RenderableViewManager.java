@@ -866,6 +866,9 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
 
         @ReactProp(name = "height")
         public void setHeight(FilterPrimitiveView node, Dynamic height) { node.setHeight(height); }
+
+        @ReactProp(name = "result")
+        public void setResult(FilterPrimitiveView node, String result) { node.setResult(result); }
     }
 
     static class FilterManager extends GroupViewManager {
