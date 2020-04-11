@@ -71,7 +71,15 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         RNSVGPattern,
         RNSVGMask,
         RNSVGFilter,
-        RNSVGFEGaussianBlur,
+        RNSVGFEBlend,
+				RNSVGFEColorMatrix,
+				RNSVGFEComposite,
+				RNSVGFEMergeNode,
+				RNSVGFEMerge,
+				RNSVGFEOffset,
+				RNSVGFEPointLight,
+				RNSVGFESpecularLighting,
+				RNSVGFEGaussianBlur
     }
 
     class RenderableShadowNode extends LayoutShadowNode {
@@ -921,6 +929,148 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
         }
     }
 
+	static class FEBlendManager extends FilterPrimitiveManager {
+		FEBlendManager() { super(SVGClass.RNSVGFEBlend); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FEBlendView node, String in1) {
+			node.setIn1(in1);
+		}
+
+		@ReactProp(name = "in2")
+		public void setIn2(FEBlendView node, String in2) {
+			node.setIn2(in2);
+		}
+
+		@ReactProp(name = "mode")
+		public void setMode(FEBlendView node, int mode) {
+			node.setMode(mode);
+		}
+	}
+
+	static class FEColorMatrixManager extends FilterPrimitiveManager {
+		FEColorMatrixManager() { super(SVGClass.RNSVGFEColorMatrix); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FEColorMatrixView node, String in1) {
+			node.setIn1(in1);
+		}
+
+		@ReactProp(name = "type")
+		public void setIn1(FEColorMatrixView node, int type) {
+			node.setType(type);
+		}
+	}
+
+	static class FECompositeManager extends FilterPrimitiveManager {
+		FECompositeManager() { super(SVGClass.RNSVGFEComposite); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FECompositeView node, String in1) {
+			node.setIn1(in1);
+		}
+
+		@ReactProp(name = "in2")
+		public void setIn2(FECompositeView node, String in2) {
+			node.setIn2(in2);
+		}
+
+		@ReactProp(name = "k1")
+		public void setK1(FECompositeView node, Dynamic k1) {
+			node.setK1(k1);
+		}
+
+		@ReactProp(name = "k2")
+		public void setK2(FECompositeView node, Dynamic k2) {
+			node.setK1(k2);
+		}
+
+		@ReactProp(name = "k3")
+		public void setK3(FECompositeView node, Dynamic k3) {
+			node.setK1(k3);
+		}
+
+		@ReactProp(name = "k4")
+		public void setK4(FECompositeView node, Dynamic k4) {
+			node.setK1(k4);
+		}
+	}
+
+	static class FEMergeNodeManager extends FilterPrimitiveManager {
+		FEMergeNodeManager() { super(SVGClass.RNSVGFEMergeNode); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FEMergeNodeView node, String in1) {
+			node.setIn1(in1);
+		}
+	}
+
+	static class FEMergeManager extends FilterPrimitiveManager {
+		FEMergeManager() { super(SVGClass.RNSVGFEMerge); }
+	}
+
+	static class FEOffsetManager extends FilterPrimitiveManager {
+		FEOffsetManager() { super(SVGClass.RNSVGFEOffset); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FEOffsetView node, String in1) {
+			node.setIn1(in1);
+		}
+
+		@ReactProp(name = "dx")
+		public void setDx(FEOffsetView node, Dynamic dx) {
+			node.setDx(dx);
+		}
+
+		@ReactProp(name = "dy")
+		public void setDy(FEOffsetView node, Dynamic dy) {
+			node.setDy(dy);
+		}
+	}
+
+	static class FEPointLightManager extends FilterPrimitiveManager {
+		FEPointLightManager() { super(SVGClass.RNSVGFEPointLight); }
+
+		@ReactProp(name = "z")
+		public void setZ(FEPointLightView node, Dynamic z) {
+			node.setZ(z);
+		}
+	}
+
+	static class FESpecularLightingManager extends FilterPrimitiveManager {
+		FESpecularLightingManager() { super(SVGClass.RNSVGFESpecularLighting); }
+
+		@ReactProp(name = "in1")
+		public void setIn1(FESpecularLightingView node, String in1) {
+			node.setIn1(in1);
+		}
+
+		@ReactProp(name = "surfaceScale")
+		public void setSurfaceScale(FESpecularLightingView node, Dynamic surfaceScale) {
+			node.setSurfaceScale(surfaceScale);
+		}
+
+		@ReactProp(name = "specularConstant")
+		public void setSpecularConstant(FESpecularLightingView node, Dynamic specularConstant) {
+			node.setSpecularConstant(specularConstant);
+		}
+
+		@ReactProp(name = "specularExponent")
+		public void setSpecularExponent(FESpecularLightingView node, Dynamic specularExponent) {
+			node.setSpecularExponent(specularExponent);
+		}
+
+		@ReactProp(name = "kernelUnitLengthX")
+		public void setKernelUnitLengthX(FESpecularLightingView node, Dynamic kernelUnitLengthX) {
+			node.setKernelUnitLengthX(kernelUnitLengthX);
+		}
+
+		@ReactProp(name = "kernelUnitLengthY")
+		public void setKernelUnitLengthY(FESpecularLightingView node, Dynamic kernelUnitLengthY) {
+			node.setKernelUnitLengthY(kernelUnitLengthY);
+		}
+	}
+
     static class LinearGradientManager extends RenderableViewManager {
         LinearGradientManager() {
             super(SVGClass.RNSVGLinearGradient);
@@ -1232,6 +1382,22 @@ class RenderableViewManager extends ViewGroupManager<VirtualView> {
                 return new FilterView(reactContext);
             case RNSVGFEGaussianBlur:
                 return new FEGaussianBlurView(reactContext);
+						case RNSVGFEBlend:
+							return new FEBlendView(reactContext);
+						case RNSVGFEColorMatrix:
+							return new FEColorMatrixView(reactContext);
+						case RNSVGFEComposite:
+							return new FECompositeView(reactContext);
+						case RNSVGFEMergeNode:
+							return new FEMergeNodeView(reactContext);
+						case RNSVGFEMerge:
+							return new FEMergeView(reactContext);
+						case RNSVGFEOffset:
+							return new FEOffsetView(reactContext);
+						case RNSVGFEPointLight:
+							return new FEPointLightView(reactContext);
+						case RNSVGFESpecularLighting:
+							return new FESpecularLightingView(reactContext);
             default:
                 throw new IllegalStateException("Unexpected type " + svgClass.toString());
         }

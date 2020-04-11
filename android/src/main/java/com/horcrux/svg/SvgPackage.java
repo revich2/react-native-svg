@@ -49,6 +49,14 @@ public class SvgPackage implements ReactPackage {
                 new MaskManager(),
                 new FilterManager(),
                 new FEGaussianBlurManager(),
+                new FEBlendManager(),
+                new FEColorMatrixManager(),
+                new FECompositeManager(),
+                new FEMergeNodeManager(),
+                new FEMergeManager(),
+                new FEOffsetManager(),
+                new FEPointLightManager(),
+                new FESpecularLightingManager(),
                 new SvgViewManager());
     }
 
