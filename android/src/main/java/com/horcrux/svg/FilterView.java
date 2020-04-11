@@ -79,7 +79,6 @@ class FilterView extends GroupView {
       invalidate();
     }
 
-    // TODO: img should be equal root SVG size or filter should be applied only for bounds of current primitive?
     public Bitmap applyFilter(Bitmap img, Bitmap background, Path path) {
       resultByName.clear();
 
@@ -99,6 +98,11 @@ class FilterView extends GroupView {
           FilterPrimitiveView filterPrimitive = (FilterPrimitiveView) node;
 
           result = filterPrimitive.applyFilter(this.resultByName, result, path);
+
+          String resultName = filterPrimitive.mResult;
+          if (resultName != null) {
+            resultByName.put(resultName, result);
+          }
         }
       }
 
@@ -106,8 +110,27 @@ class FilterView extends GroupView {
     }
 
     private Bitmap applySourceAlphaFilter(Bitmap img) {
-      // TODO
-      return img;
+      return this.isolateAlphaChannel(img);
+    }
+
+    private Bitmap isolateAlphaChannel(Bitmap sourceImg) {
+      int width = sourceImg.getWidth();
+      int height = sourceImg.getHeight();
+
+      int nPixels = width * height;
+      int[] pixels = new int[nPixels];
+      sourceImg.getPixels(pixels, 0, width, 0, 0, width, height);
+
+      for (int i = 0; i < nPixels; i++) {
+        int color = pixels[i];
+
+        pixels[i] = color>>24 & 0xff;
+      }
+
+      Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+      result.setPixels(pixels, 0, width, 0, 0, width, height);
+
+      return result;
     }
 
     @Override
