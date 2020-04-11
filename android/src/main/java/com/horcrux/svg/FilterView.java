@@ -25,6 +25,8 @@ class FilterView extends GroupView {
 
     Map<String, Bitmap> resultByName = new HashMap<>();
 
+    boolean mHasSourceGraphicAsLastOutput;
+
     public FilterView(ReactContext reactContext) {
         super(reactContext);
     }
@@ -91,11 +93,12 @@ class FilterView extends GroupView {
       resultByName.put("BackgroundAlpha", backgroundAlpha);
 
       Bitmap result = img;
+			FilterPrimitiveView filterPrimitive = null;
 
       for (int i = 0; i < getChildCount(); i++) {
         View node = getChildAt(i);
         if (node instanceof FilterPrimitiveView) {
-          FilterPrimitiveView filterPrimitive = (FilterPrimitiveView) node;
+          filterPrimitive = (FilterPrimitiveView) node;
 
           result = filterPrimitive.applyFilter(this.resultByName, result, path);
 
@@ -105,6 +108,12 @@ class FilterView extends GroupView {
           }
         }
       }
+
+      mHasSourceGraphicAsLastOutput = false;
+      if (filterPrimitive != null && filterPrimitive instanceof FEMergeView) {
+				FEMergeView m = (FEMergeView) filterPrimitive;
+				mHasSourceGraphicAsLastOutput = m.hasSourceGraphicAsLastOutput();
+			}
 
       return result;
     }
@@ -132,6 +141,10 @@ class FilterView extends GroupView {
 
       return result;
     }
+
+		public boolean hasSourceGraphicAsLastOutput() {
+			return mHasSourceGraphicAsLastOutput;
+		}
 
     @Override
     void saveDefinition() {
