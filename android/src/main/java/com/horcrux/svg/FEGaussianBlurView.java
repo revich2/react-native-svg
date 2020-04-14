@@ -2,6 +2,7 @@ package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 @SuppressLint("ViewConstructor")
@@ -39,6 +41,11 @@ class FEGaussianBlurView extends FilterPrimitiveView {
     private Size calculateKernelSize(double stdX, double stdY) {
       return new Size(castToOdd(clampedToKernelSize(stdX)), castToOdd(clampedToKernelSize(stdY)));
     }
+    static {
+      System.loadLibrary("Filter");
+    }
+
+    public native byte[] makeBlur(byte[] srcPixels, int width, int height, double stdX, double stdY, int edgeMode);
 
     enum RNSVGEdgeModeValues {
         SVG_EDGEMODE_UNKNOWN,
@@ -118,16 +125,24 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         double stdDeviationY = this.mStdDeviationY.value;
         double stdDeviationX = this.mStdDeviationX.value;
 
-        Imgproc.GaussianBlur(
-          rgba,
-          rgba,
-          calculateKernelSize(stdDeviationX * 3, stdDeviationY * 3), // 3 - This is experimental value
-          stdDeviationX,
-          stdDeviationY
-        );
+        int width = tmpBitmap.getWidth();
+        int height = tmpBitmap.getHeight();
 
-        Utils.matToBitmap(rgba, tmpBitmap);
+        int size = tmpBitmap.getRowBytes() * tmpBitmap.getHeight();
 
-        return tmpBitmap;
+        ByteBuffer srcBuffer = ByteBuffer.allocate(size);
+        tmpBitmap.copyPixelsToBuffer(srcBuffer);
+
+        byte[] src_pixels = srcBuffer.array();
+
+        byte[] blured = this.makeBlur(src_pixels, width, height, stdDeviationX, stdDeviationY, 0);
+
+        Bitmap bluredBtm = BitmapFactory.decodeByteArray(blured, 0, blured.length);
+
+//        if (stdDeviationX != stdDeviationY) {
+//          return tmpBitmap;
+//        }
+
+        return bluredBtm;
     }
 }

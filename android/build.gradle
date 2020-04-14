@@ -29,6 +29,15 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    externalNativeBuild {
+      cmake {
+        path "src/main/cpp/CMakeLists.txt"
+        version "3.10.2"
+      }
+    }
+
+    ndkVersion "21.0.6113669"
 }
 
 repositories {
