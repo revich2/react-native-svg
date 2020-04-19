@@ -116,6 +116,7 @@ inline void boxBlur(const uint8_t* srcPixelArray, uint8_t* dstPixelArray,
                     unsigned dx, int dxLeft, int dxRight, int stride, int strideLine, int effectWidth, int effectHeight, bool alphaImage, EdgeModeType edgeMode)
 {
     const int maxKernelSize = std::min(dxRight, effectWidth);
+
     if (alphaImage)
         return boxBlurAlphaOnly(srcPixelArray, dstPixelArray, dx, dxLeft, dxRight, stride, strideLine,  effectWidth, effectHeight, maxKernelSize);
 
