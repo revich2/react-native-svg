@@ -9,32 +9,11 @@ import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-import org.opencv.core.Size;
-
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FEGaussianBlurView extends FilterPrimitiveView {
-    static final int gMaxKernelSize = 501;
-
-    private static float gaussianKernelFactor() {
-      return 3 / 4.f * (float) Math.sqrt(2 * Math.PI);
-    }
-
-    private int clampedToKernelSize(double value) {
-      int size = Math.max(2, (int) Math.floor(value * gaussianKernelFactor() + 0.5f));
-
-      return Math.min(size, gMaxKernelSize);
-    }
-
-    private int castToOdd(int value) {
-      return value % 2 == 0 ? value + 1 : value;
-    }
-
-    private Size calculateKernelSize(double stdX, double stdY) {
-      return new Size(castToOdd(clampedToKernelSize(stdX)), castToOdd(clampedToKernelSize(stdY)));
-    }
     static {
       System.loadLibrary("Filter");
     }
@@ -73,7 +52,6 @@ class FEGaussianBlurView extends FilterPrimitiveView {
     @ReactProp(name="edgeMode")
     public void setEdgeMode(int edgeMode) {
         mEdgeMode = this.getEdgeMode(edgeMode);
-
         invalidate();
     }
 
