@@ -2,14 +2,12 @@ package com.horcrux.svg;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Path;
 
 import com.facebook.react.bridge.Dynamic;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 @SuppressLint("ViewConstructor")
@@ -83,41 +81,6 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         invalidate();
     }
 
-    private Bitmap gaussianBlur(Bitmap srcBtm, double stdX, double stdY, RNSVGEdgeModeValues edgeMode) {
-      int width = srcBtm.getWidth();
-      int height = srcBtm.getHeight();
-
-      int size = srcBtm.getRowBytes() * srcBtm.getHeight();
-      ByteBuffer srcBuffer = ByteBuffer.allocate(size);
-      srcBtm.copyPixelsToBuffer(srcBuffer);
-
-      byte[] pixels = srcBuffer.array();
-      short[] uint8_pixels = new short[size];
-
-      for (int i = 0; i < size; i++) {
-        uint8_pixels[i] = (short) (pixels[i] & 0xff);
-      }
-
-      short[] blurred_pixels = this.filtersEngine.nativeGaussianBlur(uint8_pixels, width, height, stdX, stdY, this.getEdgeMode(edgeMode));
-
-      Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-      for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-          int redPosition = 4 * (x + width * y);
-
-          int red = blurred_pixels[redPosition];
-          int green = blurred_pixels[redPosition + 1];
-          int blue = blurred_pixels[redPosition + 2];
-          int alpha = blurred_pixels[redPosition + 3];
-
-          result.setPixel(x, y, Color.argb(alpha, blue, green, red));
-        }
-      }
-
-      return result;
-    }
-
     @Override
     public Bitmap applyFilter(Map<String, Bitmap> results, Bitmap previousFilterResult, Path path) {
         Bitmap inResult = !this.mIn1.isEmpty() ? results.get(this.mIn1) : null;
@@ -130,7 +93,7 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         double stdDeviationY = this.mStdDeviationY.value;
         double stdDeviationX = this.mStdDeviationX.value;
 
-        return this.gaussianBlur(inputImage, stdDeviationX, stdDeviationY, mEdgeMode);
+        return this.filtersEngine.gaussianBlur(inputImage, stdDeviationX, stdDeviationY, this.getEdgeMode(mEdgeMode));
     }
 }
 
