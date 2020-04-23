@@ -8,7 +8,7 @@
 
 extern "C"
 JNIEXPORT jshortArray JNICALL
-Java_com_horcrux_svg_FEGaussianBlurView_nativeGaussianBlur(JNIEnv *env, jobject thiz, jshortArray src_pixels,
+Java_com_horcrux_svg_FiltersEngine_nativeGaussianBlur(JNIEnv *env, jobject thiz, jshortArray src_pixels,
                                                  jint width, jint height,
                                                  jdouble std_x, jdouble std_y, jint edge_mode) {
 

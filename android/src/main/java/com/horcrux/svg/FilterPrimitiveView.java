@@ -14,6 +14,8 @@ interface FilterPrimitive {
 }
 
 public class FilterPrimitiveView extends DefinitionView implements FilterPrimitive {
+    protected FiltersEngine filtersEngine;
+
     SVGLength mX;
     SVGLength mY;
 
@@ -22,7 +24,11 @@ public class FilterPrimitiveView extends DefinitionView implements FilterPrimiti
 
     String mResult;
 
-    FilterPrimitiveView(ReactContext reactContext) { super(reactContext); }
+    FilterPrimitiveView(ReactContext reactContext) {
+      super(reactContext);
+
+      this.filtersEngine = FiltersEngine.getInstance();
+    }
 
     @ReactProp(name = "x")
     public void setX(Dynamic x) {
