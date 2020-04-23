@@ -6,12 +6,13 @@
 #include <string>
 #include "GaussianBlur.h"
 
+using namespace RNSVGFilters;
+
 extern "C"
 JNIEXPORT jshortArray JNICALL
 Java_com_horcrux_svg_FiltersEngine_nativeGaussianBlur(JNIEnv *env, jobject thiz, jshortArray src_pixels,
                                                  jint width, jint height,
-                                                 jdouble std_x, jdouble std_y, jint edge_mode) {
-
+                                                      jdouble std_x, jdouble std_y, jint edge_mode) {
   jsize length = env->GetArrayLength(src_pixels);
 
   uint8_t* srcPixels = new uint8_t[length];
@@ -22,8 +23,8 @@ Java_com_horcrux_svg_FiltersEngine_nativeGaussianBlur(JNIEnv *env, jobject thiz,
 
   env->ReleaseShortArrayElements(src_pixels, pSrcPixels, 0);
 
-  GaussianBlur* filter = new GaussianBlur(std_x, std_y, static_cast<EdgeModeType>(edge_mode));
-  filter->platformApplyGeneric(srcPixels, dstPixels, width, height);
+  GaussianBlur* filter = new GaussianBlur(static_cast<float>(std_x), static_cast<float>(std_y), static_cast<EdgeModeType>(edge_mode));
+  filter->applyFilter(srcPixels, dstPixels, static_cast<uint>(width), static_cast<uint>(height));
 
   jshortArray result = env->NewShortArray(length);
   jshort* pResult = new jshort[length];
