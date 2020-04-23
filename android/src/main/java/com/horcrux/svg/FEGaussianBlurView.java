@@ -14,12 +14,6 @@ import java.util.Map;
 
 @SuppressLint("ViewConstructor")
 class FEGaussianBlurView extends FilterPrimitiveView {
-    static {
-      System.loadLibrary("Filter");
-    }
-
-    public native short[] nativeGaussianBlur(short[] srcPixels, int width, int height, double stdX, double stdY, int edgeMode);
-
     enum RNSVGEdgeModeValues {
         SVG_EDGEMODE_UNKNOWN,
         SVG_EDGEMODE_DUPLICATE,
@@ -104,7 +98,7 @@ class FEGaussianBlurView extends FilterPrimitiveView {
         uint8_pixels[i] = (short) (pixels[i] & 0xff);
       }
 
-      short[] blurred_pixels = this.nativeGaussianBlur(uint8_pixels, width, height, stdX, stdY, this.getEdgeMode(edgeMode));
+      short[] blurred_pixels = this.filtersEngine.nativeGaussianBlur(uint8_pixels, width, height, stdX, stdY, this.getEdgeMode(edgeMode));
 
       Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
